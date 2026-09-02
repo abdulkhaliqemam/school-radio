@@ -18,7 +18,7 @@ const broadcastUrl = `/school-radio/${broadcast.date.split('-')[0]}/${broadcast.
       src={coverUrl} 
       alt={broadcast.title} 
       loading="lazy"
-      class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
     />
     {broadcast.video && (
       <div class="absolute inset-0 bg-emerald-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
