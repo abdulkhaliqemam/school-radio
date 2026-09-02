@@ -11,7 +11,7 @@ export async function getStaticPaths() {
   return publishedBroadcasts.map((broadcast) => {
     const [year, month] = broadcast.date.split('-');
     return {
-      params: { year, month, slug: broadcast.id },
+      params: { year, month, slug: String(broadcast.id) },
       props: { broadcast },
     };
   });

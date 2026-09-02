@@ -6,6 +6,8 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://abdulkhaliqemam.github.io',
+  base: '/school-radio',
   vite: {
     plugins: [tailwindcss()]
   },
