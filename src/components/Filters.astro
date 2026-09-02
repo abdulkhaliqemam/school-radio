@@ -1,0 +1,45 @@
+---
+interface Props {
+  categories: string[];
+  years: string[];
+}
+
+const { categories, years } = Astro.props;
+---
+
+<div class="flex flex-wrap gap-4 mb-8 justify-center">
+  <div class="flex items-center gap-2">
+    <label for="yearFilter" class="text-sm font-medium text-emerald-700">السنة:</label>
+    <select id="yearFilter" class="bg-white border-2 border-emerald-100 text-emerald-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block p-2.5 shadow-sm font-semibold">
+      <option value="">الكل</option>
+      {years.map(year => (
+        <option value={year}>{year}</option>
+      ))}
+    </select>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <label for="categoryFilter" class="text-sm font-medium text-emerald-700">المناسبة:</label>
+    <select id="categoryFilter" class="bg-white border-2 border-emerald-100 text-emerald-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block p-2.5 shadow-sm font-semibold">
+      <option value="">الكل</option>
+      {categories.map(category => (
+        <option value={category}>{category}</option>
+      ))}
+    </select>
+  </div>
+</div>
+
+<script>
+  function emitFilterEvent() {
+    const year = (document.getElementById('yearFilter') as HTMLSelectElement).value;
+    const category = (document.getElementById('categoryFilter') as HTMLSelectElement).value;
+    
+    const event = new CustomEvent('broadcast-filter', { 
+      detail: { year, category } 
+    });
+    window.dispatchEvent(event);
+  }
+
+  document.getElementById('yearFilter')?.addEventListener('change', emitFilterEvent);
+  document.getElementById('categoryFilter')?.addEventListener('change', emitFilterEvent);
+</script>

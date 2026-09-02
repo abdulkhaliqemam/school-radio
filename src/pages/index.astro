@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BroadcastCard from '../components/BroadcastCard.astro';
+import { getBroadcasts } from '../lib/fetchBroadcasts';
+
+const broadcasts = await getBroadcasts();
+const publishedBroadcasts = broadcasts.filter(b => b.published).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+const latestBroadcast = publishedBroadcasts[0];
+const recentBroadcasts = publishedBroadcasts.slice(1, 7);
+
+const totalBroadcasts = publishedBroadcasts.length;
+const totalImages = publishedBroadcasts.reduce((acc, curr) => acc + (curr.images ? curr.images.length : 0), 0);
+---
+
+<BaseLayout title="الرئيسية | إذاعتنا المدرسية">
+  {latestBroadcast && (
+    <section class="relative bg-emerald-950/70 backdrop-blur-xl border border-white/20 text-white py-20 px-8 mb-16 overflow-hidden rounded-3xl shadow-2xl mx-auto max-w-7xl">
+      <!-- Decorative background elements -->
+      <div class="absolute top-0 right-0 w-64 h-64 bg-orange-500 rounded-full mix-blend-screen filter blur-[100px] opacity-40 animate-pulse"></div>
+      <div class="absolute bottom-0 left-0 w-80 h-80 bg-emerald-400 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-pulse" style="animation-delay: 2s;"></div>
+      
+      <div class="container mx-auto relative z-10">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="bg-orange-500 text-white text-xs font-bold tracking-wider px-3 py-1 rounded-full uppercase shadow-md">أحدث إضافة</span>
+          <h2 class="text-emerald-200 text-sm font-bold tracking-wider uppercase">🎙️ إذاعة اليوم</h2>
+        </div>
+        <div class="flex flex-col lg:flex-row gap-12 items-center">
+          <div class="w-full lg:w-1/2 group">
+            <div class="relative aspect-video rounded-3xl overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] border-4 border-emerald-700/50">
+               <img src={`https://lh3.googleusercontent.com/d/${latestBroadcast.cover}=w1200`} alt={latestBroadcast.title} class="w-full h-full object-cover" />
+               <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+            </div>
+          </div>
+          <div class="w-full lg:w-1/2">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight">{latestBroadcast.title}</h1>
+            <p class="text-xl text-emerald-200 mb-6 font-medium flex items-center gap-2">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              {new Date(latestBroadcast.date).toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+            <p class="text-gray-300 mb-10 line-clamp-3 text-lg leading-relaxed">{latestBroadcast.description}</p>
+            <a href={`/school-radio/${latestBroadcast.date.split('-')[0]}/${latestBroadcast.date.split('-')[1]}/${latestBroadcast.id}`} class="inline-flex items-center gap-3 bg-orange-500 text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-orange-600 transition-all shadow-lg hover:shadow-orange-500/50 transform hover:-translate-y-1">
+              شاهد الإذاعة
+              <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="container mx-auto px-4 mb-16 relative z-20 -mt-12">
+    <div class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-8 flex flex-wrap justify-around text-center gap-8 max-w-4xl mx-auto transform hover:-translate-y-1 transition-all duration-300">
+      <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-6 flex-1 min-w-[200px] shadow-inner border border-white/60">
+        <p class="text-5xl font-black text-emerald-700 mb-2 drop-shadow-sm">{totalBroadcasts}</p>
+        <p class="text-lg text-emerald-950 font-bold">إذاعة ثانوية</p>
+      </div>
+      <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-6 flex-1 min-w-[200px] shadow-inner border border-white/60">
+        <p class="text-5xl font-black text-orange-600 mb-2 drop-shadow-sm">{totalImages}</p>
+        <p class="text-lg text-emerald-950 font-bold">صورة كواليس</p>
+      </div>
+    </div>
+  </section>
+
+  {recentBroadcasts.length > 0 && (
+    <section class="container mx-auto px-4 pb-16">
+      <div class="flex justify-between items-end mb-8">
+        <h2 class="text-2xl font-bold text-gray-900">من ذاكرة مدرستنا</h2>
+        <a href="/archive" class="text-teal-600 hover:text-teal-800 font-medium flex items-center gap-1 transition-colors">
+          عرض الأرشيف
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {recentBroadcasts.map((broadcast) => (
+          <BroadcastCard broadcast={broadcast} />
+        ))}
+      </div>
+    </section>
+  )}
+</BaseLayout>

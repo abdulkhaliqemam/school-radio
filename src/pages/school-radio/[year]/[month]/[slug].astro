@@ -1,0 +1,80 @@
+---
+import BroadcastLayout from '../../../../layouts/BroadcastLayout.astro';
+import VideoPlayer from '../../../../components/VideoPlayer.astro';
+import Gallery from '../../../../components/Gallery.astro';
+import { getBroadcasts, type Broadcast } from '../../../../lib/fetchBroadcasts';
+
+export async function getStaticPaths() {
+  const broadcasts = await getBroadcasts();
+  const publishedBroadcasts = broadcasts.filter(b => b.published);
+  
+  return publishedBroadcasts.map((broadcast) => {
+    const [year, month] = broadcast.date.split('-');
+    return {
+      params: { year, month, slug: broadcast.id },
+      props: { broadcast },
+    };
+  });
+}
+
+interface Props {
+  broadcast: Broadcast;
+}
+
+const { broadcast } = Astro.props;
+---
+
+<BroadcastLayout broadcast={broadcast}>
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-8">
+    <p class="text-xl text-gray-700 leading-relaxed mb-8">{broadcast.description}</p>
+    
+    <div class="mb-12">
+      <VideoPlayer videoId={broadcast.video} />
+    </div>
+
+    <div class="flex gap-4 border-t border-gray-100 pt-6">
+      <button onclick="navigator.share({title: document.title, url: window.location.href})" class="flex items-center gap-2 bg-gray-50 text-gray-700 hover:bg-gray-100 px-6 py-3 rounded-full font-medium transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+        مشاركة الإذاعة
+      </button>
+      
+      <button id="qrButton" class="flex items-center gap-2 bg-teal-50 text-teal-700 hover:bg-teal-100 px-6 py-3 rounded-full font-medium transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+        رمز QR
+      </button>
+    </div>
+    
+    <div id="qrContainer" class="hidden mt-6 p-6 bg-gray-50 rounded-xl text-center border border-gray-200">
+        <canvas id="qrcode" class="mx-auto mb-4 rounded-lg bg-white p-2 shadow-sm"></canvas>
+        <p class="text-sm text-gray-500">امسح الرمز للوصول لهذه الإذاعة عبر الجوال</p>
+    </div>
+  </div>
+
+  <Gallery imageIds={broadcast.images} />
+</BroadcastLayout>
+
+<script>
+  import QRCode from 'qrcode';
+
+  const btn = document.getElementById('qrButton');
+  const container = document.getElementById('qrContainer');
+  const canvas = document.getElementById('qrcode');
+
+  if (btn && container && canvas) {
+    btn.addEventListener('click', () => {
+      container.classList.toggle('hidden');
+      if (!container.classList.contains('hidden')) {
+        QRCode.toCanvas(canvas, window.location.href, {
+          width: 200,
+          margin: 2,
+          color: {
+            dark: '#134e4a', // teal-900
+            light: '#ffffff'
+          }
+        }, function (error) {
+          if (error) console.error(error);
+        });
+      }
+    });
+  }
+</script>

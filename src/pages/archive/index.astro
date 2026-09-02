@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BroadcastCard from '../../components/BroadcastCard.astro';
+import SearchBar from '../../components/SearchBar.astro';
+import Filters from '../../components/Filters.astro';
+import { getBroadcasts } from '../../lib/fetchBroadcasts';
+
+const broadcasts = await getBroadcasts();
+const publishedBroadcasts = broadcasts.filter(b => b.published).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+const categories = [...new Set(publishedBroadcasts.map(b => b.category))].filter(Boolean);
+const years = [...new Set(publishedBroadcasts.map(b => b.date.split('-')[0]))].sort().reverse();
+---
+
+<BaseLayout title="الأرشيف | إذاعتنا المدرسية">
+  <div class="bg-emerald-950/70 backdrop-blur-xl text-white py-16 px-4 mb-12 border-b border-white/20 shadow-xl relative overflow-hidden">
+    <!-- Decorative background elements -->
+    <div class="absolute top-0 left-0 w-64 h-64 bg-emerald-500 rounded-full mix-blend-screen filter blur-[80px] opacity-20 animate-pulse"></div>
+    <div class="absolute bottom-0 right-0 w-80 h-80 bg-orange-500 rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse" style="animation-delay: 2s;"></div>
+    
+    <div class="container mx-auto text-center relative z-10">
+      <h1 class="text-4xl md:text-6xl font-black mb-6 text-white drop-shadow-md tracking-tight">أرشيف الإذاعات</h1>
+      <p class="text-emerald-100 max-w-2xl mx-auto text-lg md:text-xl font-medium leading-relaxed drop-shadow-sm">تصفح ذاكرة ثانوية العصر عبر السنين. ابحث عن أي إذاعة باستخدام الكلمات المفتاحية أو الفلاتر أدناه.</p>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 pb-16">
+    <SearchBar />
+    <Filters categories={categories} years={years} />
+
+    <div id="noResults" class="hidden text-center py-12 text-gray-500">
+      <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <p class="text-xl">لم نجد أي إذاعة مطابقة للبحث!</p>
+    </div>
+
+    <div id="broadcastsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {publishedBroadcasts.map((broadcast) => (
+        <div 
+          class="broadcast-item" 
+          data-title={broadcast.title.toLowerCase()}
+          data-topic={broadcast.topic.toLowerCase()}
+          data-presenter={broadcast.presenter.toLowerCase()}
+          data-category={broadcast.category}
+          data-year={broadcast.date.split('-')[0]}
+        >
+          <BroadcastCard broadcast={broadcast} />
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import Fuse from 'fuse.js';
+
+  // We need to pass the broadcast data to the client for Fuse.js
+  // The easiest way without an API endpoint is just to read the DOM elements, 
+  // or pass a JSON script tag. We will use the DOM attributes for simplicity here.
+
+  let currentQuery = '';
+  let currentFilters = { year: '', category: '' };
+
+  const items = Array.from(document.querySelectorAll('.broadcast-item')) as HTMLElement[];
+  const grid = document.getElementById('broadcastsGrid');
+  const noResults = document.getElementById('noResults');
+
+  // Simple client-side search since Astro is static
+  function filterBroadcasts() {
+    let visibleCount = 0;
+    
+    items.forEach(item => {
+      const matchYear = !currentFilters.year || item.dataset.year === currentFilters.year;
+      const matchCategory = !currentFilters.category || item.dataset.category === currentFilters.category;
+      
+      const textMatches = [item.dataset.title, item.dataset.topic, item.dataset.presenter].join(' ');
+      const matchSearch = !currentQuery || textMatches.includes(currentQuery.toLowerCase());
+
+      if (matchYear && matchCategory && matchSearch) {
+        item.style.display = 'block';
+        visibleCount++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    if (visibleCount === 0) {
+      grid!.classList.add('hidden');
+      noResults!.classList.remove('hidden');
+    } else {
+      grid!.classList.remove('hidden');
+      noResults!.classList.add('hidden');
+    }
+  }
+
+  window.addEventListener('broadcast-search', (e: any) => {
+    currentQuery = e.detail.query;
+    filterBroadcasts();
+  });
+
+  window.addEventListener('broadcast-filter', (e: any) => {
+    currentFilters = e.detail;
+    filterBroadcasts();
+  });
+</script>

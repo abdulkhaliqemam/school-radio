@@ -1,0 +1,37 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { Broadcast } from '../lib/fetchBroadcasts';
+import { toImageUrl } from '../lib/driveHelpers';
+
+interface Props {
+  broadcast: Broadcast;
+}
+
+const { broadcast } = Astro.props;
+const coverUrl = toImageUrl(broadcast.cover, 1200);
+---
+
+<BaseLayout title={`${broadcast.title} | إذاعتنا`} description={broadcast.description}>
+  <div class="container mx-auto px-4 py-8">
+    <a href="/archive" class="inline-flex items-center text-emerald-600 hover:text-emerald-800 mb-6 transition-colors font-bold">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+      </svg>
+      العودة للأرشيف
+    </a>
+    
+    <header class="mb-8">
+      <h1 class="text-3xl md:text-5xl font-black mb-4 text-emerald-900">{broadcast.title}</h1>
+      <div class="flex flex-wrap items-center gap-4 text-gray-600 font-semibold">
+        <span class="flex items-center text-emerald-700">
+          <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          {new Date(broadcast.date).toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </span>
+        <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">{broadcast.category}</span>
+        <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm border border-gray-200">تقديم: {broadcast.presenter}</span>
+      </div>
+    </header>
+
+    <slot />
+  </div>
+</BaseLayout>

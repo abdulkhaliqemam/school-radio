@@ -1,0 +1,54 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = "الإذاعة المدرسية الرقمية، أرشيف مرئي لإبداعات طلابنا" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{title}</title>
+	</head>
+	<body class="text-gray-900 font-sans min-h-screen flex flex-col antialiased bg-fixed bg-cover bg-center" style="background-image: url('/school-bg.jpg'); zoom: 0.8;">
+		<!-- Global overlay to slightly dim the background for readability -->
+		<div class="fixed inset-0 bg-emerald-900/10 pointer-events-none z-[-1]"></div>
+
+		<header class="sticky top-0 z-50 transition-all duration-300 bg-white/70 backdrop-blur-xl shadow-lg border-b border-white/50">
+			<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+				<a href="/" class="flex items-center gap-3 group">
+					<img src="/logo.png" alt="شعار ثانوية العصر" class="w-16 h-16 object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-md" />
+					<div class="flex flex-col">
+						<span class="text-2xl font-black text-emerald-900 tracking-tight leading-none drop-shadow-sm">ثانوية العصر</span>
+						<span class="text-sm font-semibold text-orange-600 tracking-wider">النموذجية الأهلية بنين بتبوك</span>
+					</div>
+				</a>
+				<nav>
+					<ul class="flex gap-6 font-semibold text-emerald-900">
+						<li><a href="/" class="hover:text-orange-500 transition-colors drop-shadow-sm">الرئيسية</a></li>
+						<li><a href="/archive" class="hover:text-orange-500 transition-colors drop-shadow-sm">الأرشيف</a></li>
+					</ul>
+				</nav>
+			</div>
+		</header>
+
+		<main class="flex-grow pb-12 pt-8">
+			<slot />
+		</main>
+
+		<footer class="bg-emerald-950/80 backdrop-blur-md text-emerald-100 py-10 mt-12 border-t border-emerald-800 shadow-2xl relative z-10">
+			<div class="container mx-auto px-4 text-center">
+				<p class="font-medium text-lg mb-2 text-white">ثانوية العصر النموذجية الأهلية بنين بتبوك</p>
+				<p class="text-sm opacity-75">جميع الحقوق محفوظة &copy; {new Date().getFullYear()} - أرشيف الإذاعة المدرسية</p>
+			</div>
+		</footer>
+	</body>
+</html>

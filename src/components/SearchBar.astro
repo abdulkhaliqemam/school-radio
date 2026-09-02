@@ -1,0 +1,31 @@
+---
+// This will be a client-side component (using Alpine or vanilla JS), 
+// but for Astro we can just output standard HTML and let a script tag handle it.
+---
+
+<div class="relative max-w-2xl mx-auto mb-8">
+  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+    </svg>
+  </div>
+  <input 
+    type="text" 
+    id="searchInput"
+    placeholder="ابحث عن إذاعة، طالب، مناسبة..." 
+    class="block w-full pl-3 pr-10 py-4 border border-white/50 rounded-full leading-5 bg-white/70 backdrop-blur-md placeholder-emerald-800/60 focus:outline-none focus:bg-white/90 focus:placeholder-emerald-800/40 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-lg shadow-lg transition-all text-emerald-950 font-semibold"
+  >
+</div>
+
+<script>
+  // Simple client-side search event emitter
+  const input = document.getElementById('searchInput') as HTMLInputElement;
+  if (input) {
+    input.addEventListener('input', (e) => {
+      const event = new CustomEvent('broadcast-search', { 
+        detail: { query: (e.target as HTMLInputElement).value } 
+      });
+      window.dispatchEvent(event);
+    });
+  }
+</script>
