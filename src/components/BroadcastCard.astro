@@ -7,7 +7,8 @@ interface Props {
 }
 
 const { broadcast } = Astro.props;
-const coverUrl = toImageUrl(broadcast.cover, 600);
+const imageId = broadcast.cover || (broadcast.images && broadcast.images.length > 0 ? broadcast.images[0] : '');
+const coverUrl = toImageUrl(imageId, 600);
 const broadcastUrl = `/school-radio/${broadcast.date.split('-')[0]}/${broadcast.date.split('-')[1]}/${broadcast.id}`;
 ---
 
